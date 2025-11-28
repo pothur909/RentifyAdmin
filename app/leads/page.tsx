@@ -3,6 +3,7 @@
 import AdminLayout from '../components/AdminLayout';
 import { Search, Filter, Phone, Edit, RefreshCw, X, MessageSquare, Loader2 } from 'lucide-react';
 import { useEffect, useState, useRef, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface Lead {
   _id: string;
@@ -41,6 +42,7 @@ export default function Leads() {
   const [newStatus, setNewStatus] = useState('');
   const [newRemark, setNewRemark] = useState('');
   const [updating, setUpdating] = useState(false);
+  const router = useRouter();
   
   // Pagination state
   const [page, setPage] = useState(1);
@@ -253,7 +255,7 @@ export default function Leads() {
               {totalCount > 0 ? `${totalCount} total leads` : 'Manage and track your leads'}
             </p>
           </div>
-          <div className="flex gap-3">
+          {/* <div className="flex gap-3">
             <button
               onClick={handleRefresh}
               disabled={loading}
@@ -262,7 +264,32 @@ export default function Leads() {
               <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
               Refresh
             </button>
-          </div>
+          </div> */}
+          <div className="flex gap-3 flex-wrap">
+  <button
+    onClick={handleRefresh}
+    disabled={loading}
+    className="flex items-center gap-2 px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-semibold transition-all duration-300 disabled:opacity-50"
+  >
+    <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
+    Refresh
+  </button>
+
+  <button
+    onClick={() => router.push('/leads/newLead')}
+    className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-indigo-500/50 transition-all duration-300"
+  >
+    + Add Lead
+  </button>
+
+  <button
+    onClick={() => router.push('/leads/bulkLead')}
+    className="flex items-center gap-2 px-4 py-3 bg-slate-900 text-white rounded-xl font-semibold hover:bg-slate-800 transition-all duration-300"
+  >
+    + Bulk Leads
+  </button>
+</div>
+
         </div>
 
         {/* Search & Filters */}

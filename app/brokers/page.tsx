@@ -11,6 +11,9 @@ interface Broker {
   phoneNumber: string;
   serviceAreas?: string[];
   createdAt?: string;
+
+    monthlyFlatsAvailable?: number;
+  customerExpectations?: string;
 }
 
 export default function Brokers() {
@@ -258,6 +261,8 @@ export default function Brokers() {
                     <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Broker</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Contact</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Service Areas</th>
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Flats / Month</th>      {/* NEW */}
+    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Expectations</th>   
                     <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Joined</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Actions</th>
                   </tr>
@@ -307,6 +312,18 @@ export default function Brokers() {
                               <span className="text-sm text-slate-500">No areas</span>
                             )}
                           </td>
+                            <td className="px-6 py-4">
+    <span className="text-sm text-slate-700">
+      {broker.monthlyFlatsAvailable ?? 'N/A'}
+    </span>
+  </td>
+
+  {/* NEW: Expectations */}
+  <td className="px-6 py-4 max-w-xs">
+    <span className="text-xs text-slate-600 line-clamp-2">
+      {broker.customerExpectations || '—'}
+    </span>
+  </td>
                           <td className="px-6 py-4">
                             <span className="text-sm text-slate-600">
                               {broker.createdAt ? new Date(broker.createdAt).toLocaleDateString('en-IN') : 'N/A'}
