@@ -641,7 +641,7 @@ export default function Leads() {
 
   // infinite scroll
   const observerTarget = useRef<HTMLTableRowElement | null>(null);
-  const searchTimeoutRef = useRef<NodeJS.Timeout>();
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // assign broker modal
   const [showAssignModal, setShowAssignModal] = useState(false);
@@ -651,7 +651,7 @@ export default function Leads() {
   const [selectedBrokerId, setSelectedBrokerId] = useState('');
   const [assignError, setAssignError] = useState<string | null>(null);
 
-  const baseurl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:7000';
+  const baseurl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:7000';
 
   // Debounce search input
   useEffect(() => {

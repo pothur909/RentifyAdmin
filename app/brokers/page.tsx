@@ -16,6 +16,8 @@ interface Broker {
   customerExpectations?: string;
 }
 
+const baseurl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:7000';
+
 export default function Brokers() {
   const [brokers, setBrokers] = useState<Broker[]>([]);
   const [loading, setLoading] = useState(true);
@@ -33,7 +35,9 @@ export default function Brokers() {
   
   // Refs for infinite scroll
   const observerTarget = useRef<HTMLTableRowElement>(null);
-  const searchTimeoutRef = useRef<NodeJS.Timeout>();
+  // const searchTimeoutRef = useRef<NodeJS.Timeout>();
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
 
   // Debounce search input
   useEffect(() => {
@@ -77,7 +81,7 @@ export default function Brokers() {
         params.append('search', search.trim());
       }
       
-      const response = await fetch(`http://localhost:7000/api/brokers/admin/all?${params}`);
+      const response = await fetch(`${baseurl}/api/brokers/admin/all?${params}`);
       if (!response.ok) throw new Error('Failed to fetch brokers');
       const result = await response.json();
       
