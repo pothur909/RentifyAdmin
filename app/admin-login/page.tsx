@@ -46,11 +46,11 @@ export default function AdminLoginPage() {
         name: userData.name,
         email: userData.email,
         role: userData.role || 'sub-admin',
-        token: data.token,
+
         allowedRoutes: userData.allowedRoutes || ['*'],
       };
 
-      login(adminUser);
+      login(adminUser, data.token);
 
       router.push('/dashboard');
     } catch (err) {

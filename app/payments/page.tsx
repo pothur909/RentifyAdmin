@@ -139,7 +139,7 @@ import { useEffect, useState } from 'react';
 import AdminLayout from '../components/AdminLayout';
 import { Search, Filter, MoreVertical, Download, CreditCard } from 'lucide-react';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:7000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:7000';
 
 type PaymentRow = {
   id: string;
