@@ -32,6 +32,17 @@ const BUDGET_RANGES = [
   { label: 'Above ₹1,00,000', value: '100000-above' },
 ];
 
+const PROPERTY_TYPES = [
+  'Standalone house',
+  'Apartment',
+  'Gated community',
+  'Independent house',
+  'Villa',
+  'PG / Co-living',
+  'Plot / Land',
+];
+
+
 export default function AdminAddLeadPage() {
   const router = useRouter();
 
@@ -42,6 +53,7 @@ export default function AdminAddLeadPage() {
     budget: '',
     flatType: '',
     areaKey: '',
+    propertyType: '',   
   });
 
   const [loading, setLoading] = useState(false);
@@ -124,6 +136,7 @@ export default function AdminAddLeadPage() {
           budget: budgetValue,
           flatType: formData.flatType,
           areaKey: formData.areaKey,
+          propertyType: formData.propertyType, 
         }),
       });
 
@@ -131,7 +144,7 @@ export default function AdminAddLeadPage() {
 
       if (response.ok) {
         setMessage({ type: 'success', text: 'Lead created successfully and assigned if broker available.' });
-        setFormData({ name: '', phoneNumber: '', address: '', budget: '', flatType: '', areaKey: '' });
+        setFormData({ name: '', phoneNumber: '', address: '', budget: '', flatType: '', areaKey: '', propertyType: '', });
         setSearchTerm('');
       } else {
         setMessage({ type: 'error', text: data.message || 'Something went wrong.' });
@@ -242,7 +255,7 @@ export default function AdminAddLeadPage() {
           </div>
 
           {/* Flat type */}
-          <div>
+          {/* <div>
             <label className="flex items-center text-sm font-semibold text-gray-700 mb-2">
               <Home className="w-4 h-4 mr-2 text-blue-600" />
               Property Type *
@@ -259,7 +272,47 @@ export default function AdminAddLeadPage() {
                 <option key={t} value={t}>{t}</option>
               ))}
             </select>
-          </div>
+          </div> */}
+
+          {/* Property Type */}
+<div>
+  <label className="flex items-center text-sm font-semibold text-gray-700 mb-2">
+    <Home className="w-4 h-4 mr-2 text-blue-600" />
+    Property Type *
+  </label>
+  <select
+    name="propertyType"
+    value={formData.propertyType}
+    onChange={handleChange}
+    required
+    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none text-black"
+  >
+    <option value="">Select property type</option>
+    {PROPERTY_TYPES.map((t) => (
+      <option key={t} value={t}>{t}</option>
+    ))}
+  </select>
+</div>
+
+{/* Flat / BHK Type (optional) */}
+<div>
+  <label className="flex items-center text-sm font-semibold text-gray-700 mb-2">
+    <Home className="w-4 h-4 mr-2 text-blue-400" />
+    BHK / Flat Type (optional)
+  </label>
+  <select
+    name="flatType"
+    value={formData.flatType}
+    onChange={handleChange}
+    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none text-black"
+  >
+    <option value="">Select BHK / flat type</option>
+    {FLAT_TYPES.map((t) => (
+      <option key={t} value={t}>{t}</option>
+    ))}
+  </select>
+</div>
+
 
           {/* Budget */}
           <div>
