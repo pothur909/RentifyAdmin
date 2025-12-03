@@ -580,7 +580,7 @@ import {
   MessageSquare,
   Loader2,
 } from 'lucide-react';
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 
 interface Lead {
@@ -639,6 +639,8 @@ export default function Leads() {
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
 
+
+
   // infinite scroll
   const observerTarget = useRef<HTMLTableRowElement | null>(null);
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -651,7 +653,28 @@ export default function Leads() {
   const [selectedBrokerId, setSelectedBrokerId] = useState('');
   const [assignError, setAssignError] = useState<string | null>(null);
 
+  const [brokerSearch, setBrokerSearch] = useState('');
+const [isBrokerDropdownOpen, setIsBrokerDropdownOpen] = useState(false);
+
+
   const baseurl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:7000';
+  
+    const filteredBrokers = useMemo(() => {
+  const term = brokerSearch.trim().toLowerCase();
+  if (!term) return brokers;
+
+  return brokers.filter(b => {
+    const name = b.name?.toLowerCase() || '';
+    const phone = b.phoneNumber?.toLowerCase() || '';
+    const areas = (b.serviceAreas || []).join(' ').toLowerCase();
+
+    return (
+      name.includes(term) ||
+      phone.includes(term) ||
+      areas.includes(term)
+    );
+  });
+}, [brokerSearch, brokers]);
 
   // Debounce search input
   useEffect(() => {
@@ -866,13 +889,23 @@ export default function Leads() {
     }
   };
 
+  // const openAssignModal = (lead: Lead) => {
+  //   setSelectedLead(lead);
+  //   setShowAssignModal(true);
+  //   setSelectedBrokerId('');
+  //   setBrokers([]);
+  //   loadBrokersForLead(lead);
+  // };
+
   const openAssignModal = (lead: Lead) => {
-    setSelectedLead(lead);
-    setShowAssignModal(true);
-    setSelectedBrokerId('');
-    setBrokers([]);
-    loadBrokersForLead(lead);
-  };
+  setSelectedLead(lead);
+  setShowAssignModal(true);
+  setSelectedBrokerId('');
+  setBrokers([]);
+  setBrokerSearch(''); // clear autocomplete text
+  loadBrokersForLead(lead);
+};
+
 
   const handleAssignBroker = async () => {
     if (!selectedLead || !selectedBrokerId) return;
@@ -1367,7 +1400,7 @@ export default function Leads() {
                 </button>
               </div>
 
-              <div className="mb-4">
+              {/* <div className="mb-4">
                 <p className="text-slate-700 font-medium">
                   {selectedLead.name}
                 </p>
@@ -1383,7 +1416,35 @@ export default function Leads() {
                       : `Address: ${selectedLead.address}`}
                   </p>
                 )}
-              </div>
+              </div> */}
+
+              <div className="mb-4">
+  <p className="text-slate-700 font-medium">
+    {selectedLead.name}
+  </p>
+  {selectedLead.phoneNumber && (
+    <p className="text-sm text-slate-500">
+      {selectedLead.phoneNumber}
+    </p>
+  )}
+  {(selectedLead.areaKey || selectedLead.address) && (
+    <p className="text-xs text-slate-500 mt-1">
+      {selectedLead.areaKey
+        ? `Area: ${selectedLead.areaKey}`
+        : `Address: ${selectedLead.address}`}
+    </p>
+  )}
+
+  {selectedLead.assignedTo && (
+    <p className="text-xs text-slate-500 mt-2">
+      Present broker:{' '}
+      <span className="font-semibold">
+        {selectedLead.assignedTo.name} ({selectedLead.assignedTo.phoneNumber})
+      </span>
+    </p>
+  )}
+</div>
+
 
               {assignError && (
                 <div className="mb-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
@@ -1396,7 +1457,7 @@ export default function Leads() {
                   Select broker
                 </label>
 
-                {brokersLoading ? (
+                {/* {brokersLoading ? (
                   <div className="flex items-center gap-2 text-sm text-slate-500">
                     <Loader2 size={16} className="animate-spin" />
                     <span>Loading brokers for this area...</span>
@@ -1419,7 +1480,77 @@ export default function Leads() {
                       </option>
                     ))}
                   </select>
+                )} */}
+{brokersLoading ? (
+  <div className="flex items-center gap-2 text-sm text-slate-500">
+    <Loader2 size={16} className="animate-spin" />
+    <span>Loading brokers for this area...</span>
+  </div>
+) : brokers.length === 0 ? (
+  <p className="text-sm text-slate-500">
+    No eligible brokers found for this area. Only paid brokers with remaining
+    capacity are shown. Add brokers with this service area or update the lead
+    location.
+  </p>
+) : (
+  <div className="relative">
+    <input
+      type="text"
+      value={brokerSearch}
+      onChange={e => {
+        setBrokerSearch(e.target.value);
+        setIsBrokerDropdownOpen(true);
+      }}
+      onFocus={() => setIsBrokerDropdownOpen(true)}
+      placeholder="Search and select broker..."
+      className="w-full px-4 py-2.5 rounded-xl bg-slate-100 border-2 border-transparent focus:border-indigo-500 focus:bg-white outline-none text-sm"
+    />
+
+    {isBrokerDropdownOpen && filteredBrokers.length > 0 && (
+      <div className="absolute z-50 mt-1 w-full max-h-56 overflow-y-auto rounded-xl border border-slate-200 bg-white shadow-lg">
+        {filteredBrokers.map(b => {
+          const isCurrent =
+            selectedLead?.assignedTo &&
+            selectedLead.assignedTo._id === b._id;
+
+          return (
+            <button
+              key={b._id}
+              type="button"
+              onClick={() => {
+                setSelectedBrokerId(b._id);
+                setBrokerSearch(`${b.name} (${b.phoneNumber})`);
+                setIsBrokerDropdownOpen(false);
+              }}
+              className="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-100 flex flex-col"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <span className="font-medium text-slate-800">
+                  {b.name} ({b.phoneNumber})
+                </span>
+
+                {isCurrent && (
+                  <span className="text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 font-semibold">
+                    Present broker
+                  </span>
                 )}
+              </div>
+
+              {b.serviceAreas && b.serviceAreas.length > 0 && (
+                <span className="text-xs text-slate-500 mt-1">
+                  Areas: {b.serviceAreas.join(', ')}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+    )}
+  </div>
+)}
+
+
+
               </div>
 
               <div className="flex gap-3">

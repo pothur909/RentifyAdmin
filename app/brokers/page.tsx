@@ -4,6 +4,14 @@ import AdminLayout from '../components/AdminLayout';
 import { Search, Filter, MoreVertical, Star, TrendingUp, RefreshCw, X, Loader2 } from 'lucide-react';
 import { useEffect, useState, useRef, useCallback } from 'react';
 
+interface BrokerStats {
+  packageTotalLeads: number;
+  remainingLeads: number;
+  newLeads: number;
+  contacted: number;
+  totalAssigned: number;
+}
+
 interface Broker {
   _id: string;
   name: string;
@@ -12,9 +20,12 @@ interface Broker {
   serviceAreas?: string[];
   createdAt?: string;
 
-    monthlyFlatsAvailable?: number;
+  monthlyFlatsAvailable?: number;
   customerExpectations?: string;
+
+  stats?: BrokerStats; // new
 }
+
 
 const baseurl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:7000';
 
@@ -260,21 +271,34 @@ export default function Brokers() {
           <div className="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-slate-50 border-b border-slate-200 sticky top-0">
+                {/* <thead className="bg-slate-50 border-b border-slate-200 sticky top-0">
                   <tr>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Broker</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Contact</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Service Areas</th>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Flats / Month</th>      {/* NEW */}
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Flats / Month</th>      
     <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Expectations</th>   
                     <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Joined</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Actions</th>
                   </tr>
-                </thead>
+                </thead> */}
+                <thead className="bg-slate-50 border-b border-slate-200 sticky top-0">
+  <tr>
+    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Broker</th>
+    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Contact</th>
+    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Service Areas</th>
+    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Flats / Month</th>
+    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Expectations</th>
+    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Leads</th> {/* NEW */}
+    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Joined</th>
+    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Actions</th>
+  </tr>
+</thead>
+
                 <tbody className="divide-y divide-slate-200">
                   {brokers.length === 0 && !loading ? (
                     <tr>
-                      <td colSpan={5} className="px-6 py-12 text-center text-slate-500">
+                      <td colSpan={8} className="px-6 py-12 text-center text-slate-500">
                         {searchQuery ? 'No brokers found matching your search' : 'No brokers found'}
                       </td>
                     </tr>
@@ -316,23 +340,41 @@ export default function Brokers() {
                               <span className="text-sm text-slate-500">No areas</span>
                             )}
                           </td>
-                            <td className="px-6 py-4">
-    <span className="text-sm text-slate-700">
-      {broker.monthlyFlatsAvailable ?? 'N/A'}
-    </span>
-  </td>
-
-  {/* NEW: Expectations */}
-  <td className="px-6 py-4 max-w-xs">
-    <span className="text-xs text-slate-600 line-clamp-2">
-      {broker.customerExpectations || '—'}
-    </span>
-  </td>
                           <td className="px-6 py-4">
-                            <span className="text-sm text-slate-600">
-                              {broker.createdAt ? new Date(broker.createdAt).toLocaleDateString('en-IN') : 'N/A'}
-                            </span>
-                          </td>
+  <span className="text-sm text-slate-700">
+    {broker.monthlyFlatsAvailable ?? 'N/A'}
+  </span>
+</td>
+
+<td className="px-6 py-4 max-w-xs">
+  <span className="text-xs text-slate-600 line-clamp-2">
+    {broker.customerExpectations || '—'}
+  </span>
+</td>
+
+{/* NEW: Leads info */}
+<td className="px-6 py-4">
+  <div className="space-y-1">
+    <p className="text-sm font-semibold text-slate-800">
+      Total Package Leads: {broker.stats?.packageTotalLeads ?? 0}
+    </p>
+    <p className="text-xs text-slate-600">
+      Pending leads: {broker.stats?.remainingLeads ?? 0}
+    </p>
+    <p className="text-xs text-slate-600">
+      New: {broker.stats?.newLeads ?? 0} · Contacted: {broker.stats?.contacted ?? 0}
+    </p>
+  </div>
+</td>
+
+<td className="px-6 py-4">
+  <span className="text-sm text-slate-600">
+    {broker.createdAt
+      ? new Date(broker.createdAt).toLocaleDateString('en-IN')
+      : 'N/A'}
+  </span>
+</td>
+
                           <td className="px-6 py-4">
                             <button className="p-2 hover:bg-slate-100 rounded-lg transition-colors duration-200">
                               <MoreVertical size={18} className="text-slate-600" />
